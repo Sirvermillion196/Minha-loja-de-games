@@ -2,6 +2,8 @@ package br.com.Game.MinhaLoja.controller;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,20 +46,23 @@ public class ProdutoController {
 	}
 
 	@PostMapping
-	public ResponseEntity<ProdutoModel> postProduto(@RequestBody ProdutoModel produto) {
+	public ResponseEntity<ProdutoModel> postProduto(@Valid @RequestBody ProdutoModel produto) {
 		return ResponseEntity.status(HttpStatus.CREATED).body(produtoRepository.save(produto)); // HTTP 201
 
 	}
 
 	@PutMapping
-	public ResponseEntity<ProdutoModel> putProduto(@RequestBody ProdutoModel produto) {
-		return ResponseEntity.status(HttpStatus.OK).body(produtoRepository.save(produto)); // HTTP 201
-
+	public ResponseEntity<ProdutoModel> putProduto(@Valid @RequestBody ProdutoModel produto) {
+		return produtoRepository.findById(produto.getIdProduto())
+				.map(resp -> ResponseEntity.ok().body(produtoRepository.save(produto)))
+				.orElse(ResponseEntity.notFound().build());
 	}
 
 	@DeleteMapping("/{id}")
-	public void deleteProduto(@PathVariable long id) {
-		produtoRepository.deleteById(id);
-
+	public ResponseEntity<?> deletePostagem(@PathVariable long id) {
+		return produtoRepository.findById(id).map(resp -> {
+			produtoRepository.deleteById(id);
+			return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+		}).orElse(ResponseEntity.notFound().build());
 	}
 }

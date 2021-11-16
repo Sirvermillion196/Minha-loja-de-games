@@ -2,6 +2,8 @@ package br.com.Game.MinhaLoja.controller;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.Game.MinhaLoja.model.CategoriaModel;
+import br.com.Game.MinhaLoja.model.ProdutoModel;
 import br.com.Game.MinhaLoja.repository.CategoriaRepository;
 
 //camada dedicada para criação de métodos para comunicação com o servidor
@@ -46,20 +49,23 @@ public class CategoriaController {
 	}
 
 	@PostMapping
-	public ResponseEntity<CategoriaModel> postCategoria(@RequestBody CategoriaModel categoria) {
+	public ResponseEntity<CategoriaModel> postCategoria(@Valid @RequestBody CategoriaModel categoria) {
 		return ResponseEntity.status(HttpStatus.CREATED).body(categoriaRepository.save(categoria)); // HTTP 201
 
 	}
 
 	@PutMapping
-	public ResponseEntity<CategoriaModel> putCategoria(@RequestBody CategoriaModel categoria) {
-		return ResponseEntity.status(HttpStatus.OK).body(categoriaRepository.save(categoria)); // HTTP 201
-
+	public ResponseEntity<CategoriaModel> putProduto(@Valid @RequestBody CategoriaModel categoria) {
+		return categoriaRepository.findById(categoria.getIdCategoria())
+				.map(resp -> ResponseEntity.ok().body(categoriaRepository.save(categoria)))
+				.orElse(ResponseEntity.notFound().build());
 	}
 
 	@DeleteMapping("/{id}")
-	public void deleteProduto(@PathVariable long id) {
-		categoriaRepository.deleteById(id);
-
+	public ResponseEntity<?> deletePostagem(@PathVariable long id) {
+		return categoriaRepository.findById(id).map(resp -> {
+			categoriaRepository.deleteById(id);
+			return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+		}).orElse(ResponseEntity.notFound().build());
 	}
 }

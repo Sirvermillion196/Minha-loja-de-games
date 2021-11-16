@@ -27,6 +27,7 @@ public class ProdutoModel {
 	private String titulo;
 
 	@NotBlank(message = "Não pode ser nulo nem pode ser preenchido pela tecla espaço")
+	@Size(min = 0)
 	private BigDecimal preco;
 
 	// CHAVE ESTRANGEIRA
